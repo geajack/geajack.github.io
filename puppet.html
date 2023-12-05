@@ -5,6 +5,7 @@
             {
                 max-width: 1200px;
                 margin: auto;
+                font-family: sans-serif;
             }
 
             p
@@ -52,7 +53,7 @@ if (y2 > 1) y2 = 1;
 puppeteer(hitbox, leg1, x1, y1);
 puppeteer(hitbox, leg2, x2, y2);
 </pre>
-    <p>Swining arms can be done with a similar trick, but negate the y coordinate rather than clamp it:</p>
+    <p>Swinging arms can be done with a similar trick, but negate the y coordinate rather than clamp it:</p>
 <pre>
 float dx = r * cos(t * frequency);
 float dy = r * sin(t * frequency);
