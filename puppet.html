@@ -1,0 +1,52 @@
+<html>
+    <head>
+
+    </head>
+    <body>
+        <h1>Programmatic character animation</h1>
+        <h2>Puppeteering coordinates</h2>
+        <p>This is a simple trick I came up with once to draw and animate a 2d video game character entirely in code (no exteral assets/sprites etc).</p>
+        <p>First, our character is going to have a fixed hitbox. For the most part we will draw the character entirely inside his hitbox. So, pick a width and a height.</p>
+        <p>Secondly, we're going to draw a head, a body, two arms and two legs inside the hitbox. You can have more or fewer limbs and they don't have to be rectangles, but whatever shape they are, each limb has a fixed width and height. We will move these limbs around inside the hitbox to animate the character.</p>
+        <p>This is the big idea: use <strong>puppeteering coordinates</strong> to position the limbs inside the body. Puppeteering coordiantes (a term I made up) are a pair of x and y coordinates that go from 0 to 1. They describe the position of a limb within the hitbox. When x = 0, the limb's left edge is flush against the left edge of the hitbox. When x = 1, the limb's right edge is flush against the right edge of the hitbox. Similarly for the y coordinate. Write a function something like this:</p>
+<pre>
+void puppeteer(Rectangle *outer, Rectangle *limb, float puppetX, float puppetY)
+{
+    int pixelX = (outer->width - limb->width) * puppetX;
+    int pixelY = (outer->height - limb->height) * puppetY;
+    limb->x = pixelX;
+    limb->y = pixelY;
+}
+</pre>
+        <p>This system makes it very easy to make a limb flush against one edge of the hitbox, which you often want to do to make sure a character is in contact with the floor or with a wall. Another cool thing about puppeteering coordinates are that to center a limb inside the hitbox, you just move it to puppeteering coordinates (0.5, 0.5). You can push it slightly outside of the hitbox by using negative coordinates or coordinates greater than 1.</p>
+        <p><strong>A limitation:</strong> The coordinate system fails if the limb is exactly the same width or height as the outer hitbox. In that case all puppeteering coordinates will result in the limb just filling the hitbox exactly.</p>
+
+        <h2>Animation</h2>
+        <p>Legs can be animated walking by moving them in a circle as if on wheels, but clamping their y coordinate to 1. Put both legs on opposite sides of the wheel:</p>
+<pre>
+float dx = r * cos(t * frequency);
+float dy = r * sin(t * frequency);
+int x1 = 0.5 + dx;
+int x2 = 0.5 - dx;
+int y1 = 1 + dy;
+int y2 = 1 - dy;
+if (y1 > 1) y1 = 1;
+if (y2 > 1) y2 = 1;
+puppeteer(hitbox, leg1, x1, y1);
+puppeteer(hitbox, leg2, x2, y2);
+</pre>
+    <p>Swining arms can be done with a similar trick, but negate the y coordinate rather than clamp it:</p>
+<pre>
+float dx = r * cos(t * frequency);
+float dy = r * sin(t * frequency);
+int x1 = 0.5 + dx;
+int x2 = 0.5 - dx;
+int y1 = 0.5 + dy;
+int y2 = 0.5 - dy;
+if (y1 > 0.5) y1 = 0.5 - dy;
+if (y2 > 0.5) y2 = 0.5 + dy;
+puppeteer(hitbox, arm1, x1, y1);
+puppeteer(hitbox, arm2, x2, y2);
+</pre>
+    </body>
+</html>
